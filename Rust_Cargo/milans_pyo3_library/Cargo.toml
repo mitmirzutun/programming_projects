@@ -1,0 +1,11 @@
+[package]
+name = "milans_pyo3_library"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["lib","dylib"]
+
+[dependencies]
+milans_rust_core={path="../milans_rust_core"}
+pyo3 = {version = "0.20.3", features = ["num-bigint","num-complex","rust_decimal"] }

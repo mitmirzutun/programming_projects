@@ -1,6 +1,10 @@
+[workspace]
+members = ["milans_rust_core","milans_pyo3_library"]
 [package]
 name = "milans_rust_library"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+milans_rust_core={path="milans_rust_core"}
+milans_pyo3_library={path="milans_pyo3_library"}

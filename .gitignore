@@ -3,3 +3,6 @@
 **/cmake-build-debug
 **/.venv
 **/Cargo.lock
+Rust_Cargo/expanded/*
+!Rust_Cargo/expanded/.gitkeep
+**/log
