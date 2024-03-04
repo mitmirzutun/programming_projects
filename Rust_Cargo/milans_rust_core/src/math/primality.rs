@@ -105,6 +105,12 @@ mod test {
                 "Expected <{0} as PowModRef>::mul_mod(4,6,{0}::MAX) to be equal to 24. Got {result}",
                 stringify!($type)
             );
+            let result = PowMod::mul_mod(<$type>::MAX-1,<$type>::MAX-1,<$type>::MAX);
+            assert_eq!(result,1,"Expected <{0} as PowMod>::mul_mod({0}::MAX-1,{0}::MAX-1,{0}::MAX) to be equal to 1. Got {result}",stringify!($type));
+            let result=PowMod::pow_mod(2 as $type,8,9);
+            assert_eq!(result,4,"Expected <{0} as PowMod>::pow_mod(2,8,9) to be equal to 4. Got {result}",stringify!($type));
+            let result=PowMod::pow_mod(2 as $type,26,27);
+            assert_eq!(result,13,"Expected <{0} as PowMod>::pow_mod(2,26,27) to be equal to 13. Got {result}",stringify!($type));
         };
     }
     fn pow_mod() {
