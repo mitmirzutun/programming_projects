@@ -1,7 +1,8 @@
-import subprocess
-import tomllib
-import os
 import itertools
+import os
+import subprocess
+import sys
+import tomllib
 
 
 def get_all_workspaces(crate_dir: str | bytes) -> list[str]:
@@ -32,7 +33,7 @@ def expand(crate_dir: str | bytes) -> None:
         tmp = dict(toml["features"])
         del tmp["default"]
         tmp = tmp.keys()
-        for length in range(1, len(tmp) + 1):
+        for length in range( len(tmp) + 1):
             features += map(",".join, itertools.combinations(tmp, length))
     if "bin" in toml:
         for binary in toml["bin"]:
@@ -45,20 +46,36 @@ def expand(crate_dir: str | bytes) -> None:
                 pipe(["cargo", "expand", "--binary", binary, "--no-default-features", f"--features={feature}",
                       "--manifest-path", manifest_path], os.path.join("expanded",
                                                                       name + "_features_" + feature + "_bin_" + binary + ".rs"))
-    elif binaries != []:
+    elif len(binaries) != 0:
         for binary in binaries:
-            pipe(["cargo", "expand", "--binary", binary, "--mainfest-path", manifest_path],
+            pipe(["cargo", "expand", "--bin", binary, "--mainfest-path", manifest_path],
                  os.path.join("expanded", name + "_bin_" + binary + ".rs"))
-    elif features != []:
+    elif len(features) != 0:
         for feature in features:
             pipe(["cargo", "expand", "--lib", "--no-default-features", f"--features={feature}", "--manifest-path",
                   manifest_path], os.path.join("expanded", name + "_features_" + feature + ".rs"))
-    subprocess.run("cargo expand --lib --manifest-path {} > {}".format(manifest_path,
-                                                                       os.path.join("expanded", name + ".rs")),
-                   shell=True,capture_output=True)
+    pipe(["cargo", "expand", "--lib", "--manifest-path", manifest_path], os.path.join("expanded", name+".rs"))
 
 
 def main():
+    if len(sys.argv)>1 and sys.argv=="test":
+        c = ""
+        while c != "c":
+            subprocess.run(["cargo", "fmt"])
+            return_code = subprocess.call(["cargo", "clippy"])
+            if return_code != 0:
+                c = input("continue?")
+                continue
+            for workspace in get_all_workspaces("."):
+                print(f"Expanding and testing workspace {workspace}")
+                expand(workspace)
+                result = subprocess.run(["cargo", "test", "--manifest-path", os.path.join(workspace, "Cargo.toml")],
+                                        capture_output=True)
+                if result.returncode != 0:
+                    subprocess.run(["cargo", "test", "--manifest-path", os.path.join(workspace, "Cargo.toml")])
+                    break
+            c = input("continue?")
+        return
     c = ""
     while c != "c":
         subprocess.run(["cargo", "fmt"])
