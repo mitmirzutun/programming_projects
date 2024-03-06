@@ -3,11 +3,12 @@ import os
 import subprocess
 import sys
 import tomllib
+CARGO_TOML = "Cargo.toml"
 
-def get_all_workspaces(crate_dir: str | bytes) -> list[str]:
+def get_all_workspaces(crate_dir: str) -> list[str]:
     workspaces = list()
     workspaces.append(crate_dir)
-    with open(os.path.join(crate_dir, "Cargo.toml"), "rb") as toml_file:
+    with open(os.path.join(crate_dir, CARGO_TOML), "rb") as toml_file:
         toml = tomllib.load(toml_file)
     if "workspace" in toml and "members" in toml["workspace"]:
         for workspace in toml["workspace"]["members"]:
@@ -21,17 +22,17 @@ def pipe(cmd: list[str], path: str | bytes) -> None:
         file.write(result.stdout)
 
 
-def expand(crate_dir: str | bytes) -> None:
-    manifest_path = os.path.join(crate_dir, "Cargo.toml")
+def expand(crate_dir: str) -> None:
+    manifest_path = os.path.join(crate_dir, CARGO_TOML)
     with open(manifest_path, "rb") as toml_file:
         toml = tomllib.load(toml_file)
     name = toml["package"]["name"]
-    features = []
+    features: list[str] = []
     binaries = []
     if "features" in toml:
-        tmp = dict(toml["features"])
-        del tmp["default"]
-        tmp = tmp.keys()
+        tmp_dict = dict(toml["features"])
+        del tmp_dict["default"]
+        tmp = tmp_dict.keys()
         for length in range( len(tmp) + 1):
             features += map(",".join, itertools.combinations(tmp, length))
     if "bin" in toml:
@@ -67,15 +68,15 @@ def build():
         for workspace in get_all_workspaces("."):
             print(f"Expanding and testing workspace {workspace}")
             expand(workspace)
-            result = subprocess.run(["cargo", "test", "--manifest-path", os.path.join(workspace, "Cargo.toml")],
+            result = subprocess.run(["cargo", "test", "--manifest-path", os.path.join(workspace, CARGO_TOML)],
                                     capture_output=True)
             if result.returncode != 0:
-                subprocess.run(["cargo", "test", "--manifest-path", os.path.join(workspace, "Cargo.toml")])
+                subprocess.run(["cargo", "test", "--manifest-path", os.path.join(workspace, CARGO_TOML)])
                 break
-            result = subprocess.run(["cargo", "build", "--manifest-path", os.path.join(workspace, "Cargo.toml")],
+            result = subprocess.run(["cargo", "build", "--manifest-path", os.path.join(workspace, CARGO_TOML)],
                                     capture_output=True)
             if result.returncode != 0:
-                subprocess.run(["cargo", "build", "--manifest-path", os.path.join(workspace, "Cargo.toml")])
+                subprocess.run(["cargo", "build", "--manifest-path", os.path.join(workspace, CARGO_TOML)])
                 break
         c = input("continue?")
         
