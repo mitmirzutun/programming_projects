@@ -4,7 +4,6 @@ import subprocess
 import sys
 import tomllib
 
-
 def get_all_workspaces(crate_dir: str | bytes) -> list[str]:
     workspaces = list()
     workspaces.append(crate_dir)
@@ -57,25 +56,7 @@ def expand(crate_dir: str | bytes) -> None:
     pipe(["cargo", "expand", "--lib", "--manifest-path", manifest_path], os.path.join("expanded", name+".rs"))
 
 
-def main():
-    if len(sys.argv)>1 and sys.argv=="test":
-        c = ""
-        while c != "c":
-            subprocess.run(["cargo", "fmt"])
-            return_code = subprocess.call(["cargo", "clippy"])
-            if return_code != 0:
-                c = input("continue?")
-                continue
-            for workspace in get_all_workspaces("."):
-                print(f"Expanding and testing workspace {workspace}")
-                expand(workspace)
-                result = subprocess.run(["cargo", "test", "--manifest-path", os.path.join(workspace, "Cargo.toml")],
-                                        capture_output=True)
-                if result.returncode != 0:
-                    subprocess.run(["cargo", "test", "--manifest-path", os.path.join(workspace, "Cargo.toml")])
-                    break
-            c = input("continue?")
-        return
+def build():
     c = ""
     while c != "c":
         subprocess.run(["cargo", "fmt"])
@@ -91,9 +72,21 @@ def main():
             if result.returncode != 0:
                 subprocess.run(["cargo", "test", "--manifest-path", os.path.join(workspace, "Cargo.toml")])
                 break
+            result = subprocess.run(["cargo", "build", "--manifest-path", os.path.join(workspace, "Cargo.toml")],
+                                    capture_output=True)
+            if result.returncode != 0:
+                subprocess.run(["cargo", "build", "--manifest-path", os.path.join(workspace, "Cargo.toml")])
+                break
         c = input("continue?")
-    subprocess.run(["cp", "target/debug/libmilans_pyo3_library.so",
-                    "../Python/.venv/lib/python3.11/site-packages/milans_pyo3_library.so"])
+        
+
+def main():
+    if len(sys.argv)>1 and sys.argv=="test":
+        build()
+    else:
+        build()
+        subprocess.run(["cp", "target/debug/libmilans_pyo3_library.so",
+                        "../Python/.venv/lib/python3.11/site-packages/milans_pyo3_library.so"])
 
 
 if __name__ == "__main__":
