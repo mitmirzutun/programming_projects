@@ -57,7 +57,37 @@ def expand(crate_dir: str) -> None:
     pipe(["cargo", "expand", "--lib", "--manifest-path", manifest_path], os.path.join("expanded", name+".rs"))
 
 
-def build():
+def get_all_files(root:str):
+    import os
+    if os.path.isfile(root):
+        yield root
+        return
+    if os.path.isdir(root):
+        result=subprocess.run(["ls",root],capture_output=True).stdout.decode("utf8").split("\n")
+        for file in result:
+            if file=="":
+                continue
+            yield from get_all_files(os.path.join(root,file))
+
+
+def build(on_change:bool=True):
+    if on_change:
+        import os,time
+        src_latest=0
+        for file in get_all_files("src"):
+            src_latest=max(src_latest,os.path.getmtime(file))
+        for file in get_all_files(os.path.join("milans_rust_core","src")):
+            src_latest=max(src_latest,os.path.getmtime(file))
+        for file in get_all_files(os.path.join("milans_pyo3_library","src")):
+            src_latest=max(src_latest,os.path.getmtime(file))
+        bin_latest=0
+        for file in get_all_files("target"):
+            bin_latest=max(bin_latest,os.path.getmtime(file))
+        exp_latest=0
+        for file in get_all_files("expanded"):
+            exp_latest=max(exp_latest,os.path.getmtime(file))
+        if bin_latest>src_latest and exp_latest>src_latest:
+            return
     c = ""
     while c != "c":
         subprocess.run(["cargo", "fmt"])

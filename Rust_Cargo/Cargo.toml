@@ -5,7 +5,7 @@ members = ["milans_rust_core","milans_pyo3_library"]
 name = "milans_rust_library"
 version = "0.1.0"
 edition = "2021"
-autobins = false
+#autobins = false
 autoexamples = false
 autobenches = false
 

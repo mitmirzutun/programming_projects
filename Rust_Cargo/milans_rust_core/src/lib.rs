@@ -1,149 +1,102 @@
+use lazy_static::lazy_static;
+lazy_static! {
+    static ref LOG_INITIALIZED: std::sync::Mutex<bool> = std::sync::Mutex::new(false);
+}
 pub mod math;
-pub fn __configure_log() {}
-#[cfg(all(feature = "log", feature = "concurrent-log", feature = "debug"))]
-#[macro_export]
-macro_rules! log {
-    (target: $target:expr, $lvl:expr, $($key:tt $(:$capture:tt)? $(= $value:expr)?),+; $($arg:tt)+) => {
-        $crate::__configure_log();
-        log::log!(target: $target, $lvl, $($key $(:$capture)? $(= $value)?),+;$($arg)+);
-    };
-    (target: $target:expr, $lvl:expr, $($arg:tt)+) => {
-        $crate::__configure_log();
-        log::log!(target: $target, $lvl, $($arg)+);
-    };
-    ($lvl:expr, $($arg:tt)+) => {
-        $crate::__configure_log();
-        $crate::log!(target: "concurrent-logger",$lvl, $($arg)+);
-        $crate::log!(target: "info-logger",$lvl, $($arg)+);
-        $crate::log!(target: "trace-logger",$lvl, $($arg)+);
-    };
+pub fn configure_log() -> Result<(), Box<dyn std::error::Error>> {
+    let mut initialized = LOG_INITIALIZED.lock().unwrap();
+    if *initialized {
+        return Ok(());
+    }
+    *initialized = true;
+    __configure_log()
 }
-#[cfg(all(feature = "log", feature = "concurrent-log", not(feature = "debug")))]
-#[macro_export]
-macro_rules! log {
-    (target: $target:expr, $lvl:expr, $($key:tt $(:$capture:tt)? $(= $value:expr)?),+; $($arg:tt)+) => {
-        $crate::__configure_log();
-        log::log!(target: $target, $lvl, $($key $(:$capture)? $(= $value)?),+;$($arg)+);
-    };
-    (target: $target:expr, $lvl:expr, $($arg:tt)+) => {
-        $crate::__configure_log();
-        log::log!(target: $target, $lvl, $($arg)+);
-    };
-    ($lvl:expr, $($arg:tt)+) => {
-        $crate::__configure_log();
-        $crate::log!(target: "concurrent-logger",$lvl, $($arg)+);
-        $crate::log!(target: "info-logger",$lvl, $($arg)+);
-    };
+fn __configure_log() -> Result<(), Box<dyn std::error::Error>> {
+    log4rs::init_file("resources/log.yaml", Default::default()).unwrap();
+    Ok(())
 }
-#[cfg(all(feature = "log", not(feature = "concurrent-log"), feature = "debug"))]
 #[macro_export]
 macro_rules! log {
-    (target: $target:expr, $lvl:expr, $($key:tt $(:$capture:tt)? $(= $value:expr)?),+; $($arg:tt)+) => {
-        $crate::__configure_log();
-        log::log!(target: $target, $lvl, $($key $(:$capture)? $(= $value)?),+;$($arg)+);
+    (target: $target:expr, $lvl:expr, $($key:tt $(:$capture:tt)? $(= $value:expr)?),+; $($arg:tt)+)  => {{
+        let error=$crate::configure_log();
+        log::log!(target: $target,$lvl,$($key $(:$capture)? $(= $value)?),+;$($arg)+)
+        error}
     };
-    (target: $target:expr, $lvl:expr, $($arg:tt)+) => {
-        $crate::__configure_log();
-        log::log!(target: $target, $lvl, $($arg)+);
+    (target: $target:expr, $lvl:expr, $($arg:tt)+)  => {{
+        let error=$crate::configure_log();
+        log::log!(target: $target,$lvl,$($arg)+);
+        error}
     };
-    ($lvl:expr, $($arg:tt)+) => {
-        $crate::__configure_log();
-        $crate::log!(target: "info-logger",$lvl, $($arg)+);
-        $crate::log!(target: "trace-logger",$lvl, $($arg)+);
-    };
-}
-#[cfg(all(
-    feature = "log",
-    not(feature = "concurrent-log"),
-    not(feature = "debug")
-))]
-#[macro_export]
-macro_rules! log {
-    (target: $target:expr, $lvl:expr, $($key:tt $(:$capture:tt)? $(= $value:expr)?),+; $($arg:tt)+) => {
-        $crate::__configure_log();
-        log::log!(target: $target, $lvl, $($key $(:$capture)? $(= $value)?),+;$($arg)+);
-    };
-    (target: $target:expr, $lvl:expr, $($arg:tt)+) => {
-        $crate::__configure_log();
-        log::log!(target: $target, $lvl, $($arg)+);
-    };
-    ($lvl:expr, $($arg:tt)+) => {
-        $crate::__configure_log();
-        $crate::log!(target: "info-logger",$lvl, $($arg)+);
-    };
-}
-#[cfg(not(feature = "log"))]
-#[macro_export]
-macro_rules! log {
-    (target: $target:expr, $lvl:expr, $($key:tt $(:$capture:tt)? $(= $value:expr)?),+; $($arg:tt)+) => {
-        $crate::__configure_log();
-        log::log!(target: $target, $lvl, $($key $(:$capture)? $(= $value)?),+;$($arg)+);
-    };
-    (target: $target:expr, $lvl:expr, $($arg:tt)+) => {
-        $crate::__configure_log();
-        log::log!(target: $target, $lvl, $($arg)+);
-    };
-    ($lvl:expr, $($arg:tt)+) => {
-        $crate::__configure_log();
-        $crate::log!(target: "info-logger",$lvl, $($arg)+);
+    ($lvl:expr, $($arg:tt)+)  => {{
+        let error=$crate::configure_log();
+        log::log!($lvl,$($arg)+);
+        error}
     };
 }
 #[macro_export]
 macro_rules! error {
     (target: $target:expr, $($arg:tt)+) => {
-        $crate::log!(target: $target, log::Level::Error, $($arg)+);
+        $crate::log!(target: $target, log::Level::Error,$($arg)+)
     };
     ($($arg:tt)+) => {
-        $crate::log!( log::Level::Error, $($arg)+);
+        $crate::log!(log::Level::Error,$($arg)+)
     };
 }
 #[macro_export]
 macro_rules! warn {
     (target: $target:expr, $($arg:tt)+) => {
-        $crate::log!(target: $target, log::Level::Warn, $($arg)+);
+        $crate::log!(target: $target, log::Level::Warn,$($arg)+)
     };
     ($($arg:tt)+) => {
-        $crate::log!( log::Level::Warn, $($arg)+);
+        $crate::log!(log::Level::Warn,$($arg)+)
     };
 }
 #[macro_export]
 macro_rules! info {
     (target: $target:expr, $($arg:tt)+) => {
-        $crate::log!(target: $target, log::Level::Info, $($arg)+);
+        $crate::log!(target: $target, log::Level::Info,$($arg)+)
     };
     ($($arg:tt)+) => {
-        $crate::log!( log::Level::Info, $($arg)+);
+        $crate::log!(log::Level::Info,$($arg)+)
     };
 }
 #[cfg(feature = "debug")]
 #[macro_export]
 macro_rules! debug {
     (target: $target:expr, $($arg:tt)+) => {
-        $crate::log!(target: $target, log::Level::Debug, $($arg)+);
+        $crate::log!(target: $target, log::Level::Debug,$($arg)+)
     };
     ($($arg:tt)+) => {
-        $crate::log!( log::Level::Debug, $($arg)+);
+        $crate::log!(log::Level::Debug,$($arg)+)
     };
 }
 #[cfg(not(feature = "debug"))]
 #[macro_export]
 macro_rules! debug {
-    (target: $target:expr, $($arg:tt)+) => {};
-    ($($arg:tt)+) => {};
+    (target: $target:expr, $($arg:tt)+) => {
+        Ok::<(), Box<dyn std::error::Error>>(())
+    };
+    ($($arg:tt)+) => {
+        Ok::<(), Box<dyn std::error::Error>>(())
+    };
 }
 #[cfg(feature = "debug")]
 #[macro_export]
 macro_rules! trace {
     (target: $target:expr, $($arg:tt)+) => {
-        $crate::log!(target: $target, log::Level::Trace, $($arg)+);
+        $crate::log!(target: $target, log::Level::Trace,$($arg)+)
     };
     ($($arg:tt)+) => {
-        $crate::log!( log::Level::Trace, $($arg)+);
+        $crate::log!(log::Level::Trace,$($arg)+)
     };
 }
 #[cfg(not(feature = "debug"))]
 #[macro_export]
 macro_rules! trace {
-    (target: $target:expr, $($arg:tt)+) => {};
-    ($($arg:tt)+) => {};
+    (target: $target:expr, $($arg:tt)+) => {
+        Ok::<(), Box<dyn std::error::Error>>(())
+    };
+    ($($arg:tt)+) => {
+        Ok::<(), Box<dyn std::error::Error>>(())
+    };
 }
