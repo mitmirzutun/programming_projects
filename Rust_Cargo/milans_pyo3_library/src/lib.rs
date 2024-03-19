@@ -9,8 +9,3 @@ fn milans_pyo3_library<'py>(
     module.add_class::<PrimeGeneratorWrapper>()?;
     Ok(())
 }
-#[pyo3::prelude::pyclass]
-#[pyo3(name = "PrimeGenerator")]
-pub struct PrimeGeneratorWrapper {
-    generator: milans_rust_core::math::primality::PrimeGenerator<u8>,
-}
