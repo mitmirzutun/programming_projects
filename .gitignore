@@ -7,3 +7,6 @@ Rust_Cargo/expanded/*
 !Rust_Cargo/expanded/.gitkeep
 **/log
 **/__pycache__
+latex/*
+!latex/*.tex
+!latex/*.pdf
