@@ -80,6 +80,8 @@ def build(on_change:bool=True):
             src_latest=max(src_latest,os.path.getmtime(file))
         for file in get_all_files(os.path.join("milans_pyo3_library","src")):
             src_latest=max(src_latest,os.path.getmtime(file))
+        src_latest=max(src_latest,os.path.getmtime("script.py"),os.path.getmtime("Cargo.toml")
+        ,os.path.getmtime(os.path.join("milans_rust_core","Cargo.toml")),os.path.getmtime(os.path.join("milans_pyo3_library","Cargo.toml")))
         bin_latest=0
         for file in get_all_files("target"):
             bin_latest=max(bin_latest,os.path.getmtime(file))
