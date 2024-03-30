@@ -1,8 +1,9 @@
 use lazy_static::lazy_static;
+pub mod compression;
+pub mod math;
 lazy_static! {
     static ref LOG_INITIALIZED: std::sync::Mutex<bool> = std::sync::Mutex::new(false);
 }
-pub mod math;
 pub fn configure_log() -> Result<(), Box<dyn std::error::Error>> {
     let mut initialized = LOG_INITIALIZED.lock().unwrap();
     if *initialized {

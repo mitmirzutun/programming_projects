@@ -6,11 +6,9 @@ import my_turtle
 def main():
     import milans_pyo3_library
     # my_turtle.AnalogClock().run()
-    step=2**20
-    result=0
-    for start in range(0,2**24,step):
-        result+=sum(map(milans_pyo3_library.miller_rabin_test,range(start,start+step)))
-        print(hex(start),result)
+    for i in range(1,64):
+        print(i,milans_pyo3_library.prime_divisors((1<<i)-1))
+        print(i,milans_pyo3_library.prime_divisors((1<<i)+1))
 
 
 if __name__ == '__main__':
