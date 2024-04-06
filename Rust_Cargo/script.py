@@ -22,7 +22,16 @@ def pipe(cmd: list[str], path: str | bytes) -> None:
         file.write(result.stdout)
 
 
-def expand(crate_dir: str) -> None:
+def expand(crate_dir: str, on_change:bool = True) -> None:
+    if on_change:
+        exp_latest=0
+        for file in get_all_files("expanded"):
+            exp_latest=max(exp_latest,os.path.getmtime(file))
+        src_latest=0
+        for file in get_all_files(os.path.join(crate_dir,"src")):
+            src_latest=max(src_latest,os.path.getmtime(file))
+        if exp_latest>src_latest:
+            return
     manifest_path = os.path.join(crate_dir, CARGO_TOML)
     with open(manifest_path, "rb") as toml_file:
         toml = tomllib.load(toml_file)
