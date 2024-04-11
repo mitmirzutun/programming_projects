@@ -1,3 +1,5 @@
+import subprocess
+
 import core
 import my_turtle
 import AI
@@ -20,6 +22,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-    input("Press any key to exit...")
+    #input("Press any key to exit...")
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
