@@ -952,10 +952,315 @@ impl MillerRabinTest for num_bigint::BigUint {
         }
         if prime <= u32::MAX.to_biguint().unwrap() {
             let prime = prime.to_u32().unwrap();
+            let exponent = exponent.to_u128().unwrap();
+            if miller_rabin_test!(7, prime, exponent, squares) {
+                return false;
+            }
+            if miller_rabin_test!(61, prime, exponent, squares) {
+                return false;
+            }
+            return true;
+        }
+        if prime <= u64::MAX.to_biguint().unwrap() {
+            let prime = prime.to_u64().unwrap();
+            let exponent = exponent.to_u128().unwrap();
+            for a in (3..=43).step_by(2) {
+                if miller_rabin_test!(a, prime, exponent, squares) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        for a in 3..(2 * (prime.bits() as u128 + 1) * (prime.bits() as u128 + 1)) {
+            result = a.to_biguint().unwrap().modpow(&exponent, &prime);
+            if result != 1.to_biguint().unwrap()
+                && result != prime.clone() - 1.to_biguint().unwrap()
+            {
+                let mut is_witness = true;
+                for _ in 0..squares {
+                    result = result.clone() * result.clone() % prime.clone();
+                    if result < 2.to_biguint().unwrap() {
+                        return false;
+                    }
+                    if result == prime.clone() - 1.to_biguint().unwrap() {
+                        is_witness = false;
+                        break;
+                    }
+                }
+                if is_witness {
+                    return false;
+                }
+            }
         }
         true
     }
     fn test_iter(self, iterations: usize) -> bool {
+        use num::ToPrimitive;
+        use num_bigint::{ToBigInt, ToBigUint};
+        let prime = self;
+        if prime < 2.to_biguint().unwrap() {
+            return false;
+        }
+        let rem = prime.clone() % 6.to_biguint().unwrap();
+        if rem != 1.to_biguint().unwrap() && rem != 5.to_biguint().unwrap() {
+            return prime < 4.to_biguint().unwrap();
+        }
+        if prime.clone() % 5.to_biguint().unwrap() != 0.to_biguint().unwrap() {
+            return prime == 5.to_biguint().unwrap();
+        }
+        if iterations == 0 {
+            return true;
+        }
+        let exponent: num_bigint::BigUint = prime.clone() >> 1;
+        let squares = exponent.trailing_zeros().unwrap();
+        let exponent = exponent >> squares;
+        let mut result = 2.to_biguint().unwrap().modpow(&exponent, &prime);
+        if result != 1.to_biguint().unwrap() && result != prime.clone() - 1.to_biguint().unwrap() {
+            let mut is_witness = true;
+            for _ in 0..squares {
+                result = result.clone() * result.clone() % prime.clone();
+                if result < 2.to_biguint().unwrap() {
+                    return false;
+                }
+                if result == prime.clone() - 1.to_biguint().unwrap() {
+                    is_witness = false;
+                    break;
+                }
+            }
+            if is_witness {
+                return false;
+            }
+        }
+        if prime < 2047.to_biguint().unwrap() {
+            return true;
+        }
+        if prime <= u32::MAX.to_biguint().unwrap() {
+            let prime = prime.to_u32().unwrap();
+            let exponent = exponent.to_u128().unwrap();
+            if iterations == 1 {
+                return true;
+            }
+            if miller_rabin_test!(7, prime, exponent, squares) {
+                return false;
+            }
+            if iterations == 2 {
+                return true;
+            }
+            if miller_rabin_test!(61, prime, exponent, squares) {
+                return false;
+            }
+            return true;
+        }
+        if prime <= u64::MAX.to_biguint().unwrap() {
+            let prime = prime.to_u64().unwrap();
+            let exponent = exponent.to_u128().unwrap();
+            for a in (3..=43).step_by(2).take(iterations - 1) {
+                if miller_rabin_test!(a, prime, exponent, squares) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        for a in
+            (3..(2 * (prime.bits() as u128 + 1) * (prime.bits() as u128 + 1))).take(iterations - 1)
+        {
+            result = a.to_biguint().unwrap().modpow(&exponent, &prime);
+            if result != 1.to_biguint().unwrap()
+                && result != prime.clone() - 1.to_biguint().unwrap()
+            {
+                let mut is_witness = true;
+                for _ in 0..squares {
+                    result = result.clone() * result.clone() % prime.clone();
+                    if result < 2.to_biguint().unwrap() {
+                        return false;
+                    }
+                    if result == prime.clone() - 1.to_biguint().unwrap() {
+                        is_witness = false;
+                        break;
+                    }
+                }
+                if is_witness {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+}
+impl MillerRabinTest for num_bigint::BigInt {
+    fn test(self) -> bool {
+        use num::ToPrimitive;
+        use num_bigint::{ToBigInt, ToBigUint};
+        let prime = self;
+        if prime < 2.to_bigint().unwrap() {
+            return false;
+        }
+        let rem = prime.clone() % 6.to_bigint().unwrap();
+        if rem != 1.to_bigint().unwrap() && rem != 5.to_bigint().unwrap() {
+            return prime < 4.to_bigint().unwrap();
+        }
+        if prime.clone() % 5.to_bigint().unwrap() != 0.to_bigint().unwrap() {
+            return prime == 5.to_bigint().unwrap();
+        }
+        let prime = prime.to_biguint().unwrap();
+        let exponent: num_bigint::BigUint = prime.clone() >> 1;
+        let squares = exponent.trailing_zeros().unwrap();
+        let exponent = exponent >> squares;
+        let mut result = 2.to_biguint().unwrap().modpow(&exponent, &prime);
+        if result != 1.to_biguint().unwrap() && result != prime.clone() - 1.to_biguint().unwrap() {
+            let mut is_witness = true;
+            for _ in 0..squares {
+                result = result.clone() * result.clone() % prime.clone();
+                if result < 2.to_biguint().unwrap() {
+                    return false;
+                }
+                if result == prime.clone() - 1.to_biguint().unwrap() {
+                    is_witness = false;
+                    break;
+                }
+            }
+            if is_witness {
+                return false;
+            }
+        }
+        if prime < 2047.to_biguint().unwrap() {
+            return true;
+        }
+        if prime <= u32::MAX.to_biguint().unwrap() {
+            let prime = prime.to_u32().unwrap();
+            let exponent = exponent.to_u128().unwrap();
+            if miller_rabin_test!(7, prime, exponent, squares) {
+                return false;
+            }
+            if miller_rabin_test!(61, prime, exponent, squares) {
+                return false;
+            }
+            return true;
+        }
+        if prime <= u64::MAX.to_biguint().unwrap() {
+            let prime = prime.to_u64().unwrap();
+            let exponent = exponent.to_u128().unwrap();
+            for a in (3..=43).step_by(2) {
+                if miller_rabin_test!(a, prime, exponent, squares) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        for a in 3..(2 * (prime.bits() as u128 + 1) * (prime.bits() as u128 + 1)) {
+            result = a.to_biguint().unwrap().modpow(&exponent, &prime);
+            if result != 1.to_biguint().unwrap()
+                && result != prime.clone() - 1.to_biguint().unwrap()
+            {
+                let mut is_witness = true;
+                for _ in 0..squares {
+                    result = result.clone() * result.clone() % prime.clone();
+                    if result < 2.to_biguint().unwrap() {
+                        return false;
+                    }
+                    if result == prime.clone() - 1.to_biguint().unwrap() {
+                        is_witness = false;
+                        break;
+                    }
+                }
+                if is_witness {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+    fn test_iter(self, iterations: usize) -> bool {
+        use num::ToPrimitive;
+        use num_bigint::{ToBigInt, ToBigUint};
+        let prime = self;
+        if prime < 2.to_bigint().unwrap() {
+            return false;
+        }
+        let rem = prime.clone() % 6.to_bigint().unwrap();
+        if rem != 1.to_bigint().unwrap() && rem != 5.to_bigint().unwrap() {
+            return prime < 4.to_bigint().unwrap();
+        }
+        if prime.clone() % 5.to_bigint().unwrap() != 0.to_bigint().unwrap() {
+            return prime == 5.to_bigint().unwrap();
+        }
+        if iterations == 0 {
+            return true;
+        }
+        let prime = prime.to_biguint().unwrap();
+        let exponent: num_bigint::BigUint = prime.clone() >> 1;
+        let squares = exponent.trailing_zeros().unwrap();
+        let exponent = exponent >> squares;
+        let mut result = 2.to_biguint().unwrap().modpow(&exponent, &prime);
+        if result != 1.to_biguint().unwrap() && result != prime.clone() - 1.to_biguint().unwrap() {
+            let mut is_witness = true;
+            for _ in 0..squares {
+                result = result.clone() * result.clone() % prime.clone();
+                if result < 2.to_biguint().unwrap() {
+                    return false;
+                }
+                if result == prime.clone() - 1.to_biguint().unwrap() {
+                    is_witness = false;
+                    break;
+                }
+            }
+            if is_witness {
+                return false;
+            }
+        }
+        if prime < 2047.to_biguint().unwrap() {
+            return true;
+        }
+        if prime <= u32::MAX.to_biguint().unwrap() {
+            let prime = prime.to_u32().unwrap();
+            let exponent = exponent.to_u128().unwrap();
+            if iterations == 1 {
+                return true;
+            }
+            if miller_rabin_test!(7, prime, exponent, squares) {
+                return false;
+            }
+            if iterations == 2 {
+                return true;
+            }
+            if miller_rabin_test!(61, prime, exponent, squares) {
+                return false;
+            }
+            return true;
+        }
+        if prime <= u64::MAX.to_biguint().unwrap() {
+            let prime = prime.to_u64().unwrap();
+            let exponent = exponent.to_u128().unwrap();
+            for a in (3..=43).step_by(2).take(iterations - 1) {
+                if miller_rabin_test!(a, prime, exponent, squares) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        for a in
+            (3..(2 * (prime.bits() as u128 + 1) * (prime.bits() as u128 + 1))).take(iterations - 1)
+        {
+            result = a.to_biguint().unwrap().modpow(&exponent, &prime);
+            if result != 1.to_biguint().unwrap()
+                && result != prime.clone() - 1.to_biguint().unwrap()
+            {
+                let mut is_witness = true;
+                for _ in 0..squares {
+                    result = result.clone() * result.clone() % prime.clone();
+                    if result < 2.to_biguint().unwrap() {
+                        return false;
+                    }
+                    if result == prime.clone() - 1.to_biguint().unwrap() {
+                        is_witness = false;
+                        break;
+                    }
+                }
+                if is_witness {
+                    return false;
+                }
+            }
+        }
         true
     }
 }
