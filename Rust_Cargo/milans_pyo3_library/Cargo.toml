@@ -3,14 +3,4 @@ name = "milans_pyo3_library"
 version = "0.1.0"
 edition = "2021"
 
-[lib]
-crate-type = ["lib","cdylib"]
-
 [dependencies]
-log = "0.4.21"
-milans_rust_core={path="../milans_rust_core",features=["pyo3"]}
-num = "0.4.1"
-num-bigint = "0.4.4"
-num-complex = "0.4.5"
-pyo3 = {version = "0.20.3", features = ["num-bigint","num-complex","rust_decimal","extension-module"] }
-rust_decimal = "1.34.3"
