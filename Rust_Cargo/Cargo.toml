@@ -1,6 +1,25 @@
+[workspace]
+members = ["milans_rust_core","milans_pyo3_library","milans_proc_macros", "milans_rust_logging"]
+
 [package]
-name = "Rust_Cargo"
+name = "milans_rust_library"
 version = "0.1.0"
 edition = "2021"
+autobins = false
+autoexamples = false
+autobenches = false
+
+[profile.dev]
+opt-level=2
 
 [dependencies]
+milans_rust_core={path="milans_rust_core"}
+milans_pyo3_library={path="milans_pyo3_library"}
+milans_proc_macros={path="milans_proc_macros"}
+milans_rust_logging={path="milans_rust_logging"}
+log = "0.4.21"
+log4rs = "1.3.0"
+
+[[bin]]
+name="rust-lib"
+path="src/main.rs"

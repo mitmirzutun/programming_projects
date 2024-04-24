@@ -4,3 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+log = "0.4.21"
+num = "0.4.2"
+num-bigint = "0.4.4"
+num-complex = "0.4.5"
+pyo3={version="0.21.2",features=["extension-module","multiple-pymethods","chrono","num-bigint","num-complex","rust_decimal","serde"]}
+rust_decimal = "1.35.0"

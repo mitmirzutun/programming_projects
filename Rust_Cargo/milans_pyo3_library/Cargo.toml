@@ -2,5 +2,9 @@
 name = "milans_pyo3_library"
 version = "0.1.0"
 edition = "2021"
+crate-type=["cdylib","rlib"]
 
 [dependencies]
+milans_rust_core={path="../milans_rust_core"}
+log = "0.4.21"
+pyo3={version="0.21.2",features=["extension-module","multiple-pymethods","chrono","num-bigint","num-complex","rust_decimal","serde"]}
