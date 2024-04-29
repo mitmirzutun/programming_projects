@@ -5,19 +5,11 @@ import my_turtle
 import AI
 
 
-@core.build
+#@core.build
 def main():
-    import milans_pyo3_library
-    # my_turtle.AnalogClock().run()
-    for i in range(1, 16):
-        if not milans_pyo3_library.miller_rabin_test((1 << i)-1):
-            print(i, (1 << i)-1, milans_pyo3_library.prime_divisors((1 << i)-1))
-        else:
-            print(i, (1 << i)-1)
-        if not milans_pyo3_library.miller_rabin_test((1 << i)+1):
-            print(i, (1 << i)+1, milans_pyo3_library.prime_divisors((1 << i)+1))
-        else:
-            print(i, (1 << i)+1)
+    with AI.LangchainSingleton() as langchain_singleton:
+        print(langchain_singleton.detect_language("Hello World"))
+        print(langchain_singleton.generate_story("The hunters of Athemis from Percy Jackson find Camp Jupiter before Heroes of Olympus"))
 
 
 if __name__ == '__main__':

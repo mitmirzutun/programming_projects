@@ -1,30 +1,33 @@
-
-pub fn configure(configuration_file:&str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn configure(configuration_file: &str) -> Result<(), Box<dyn std::error::Error>> {
     use once_cell::sync::OnceCell;
     use std::sync::Mutex;
-    static IS_CONFIGURED:OnceCell<Mutex<bool>>=OnceCell::new();
-    let mut is_configured=IS_CONFIGURED.get_or_init(||Mutex::new(false)).lock()?;
+    static IS_CONFIGURED: OnceCell<Mutex<bool>> = OnceCell::new();
+    let mut is_configured = IS_CONFIGURED.get_or_init(|| Mutex::new(false)).lock()?;
     if *is_configured {
-        return Ok(())
+        return Ok(());
     }
-    *is_configured=true;
-    log4rs::init_file(configuration_file,Default::default())?;
+    *is_configured = true;
+    log4rs::init_file(configuration_file, Default::default())?;
     Ok(())
 }
-#[cfg(not(feature="log"))]
+#[cfg(not(feature = "log"))]
 #[macro_export]
 macro_rules! log {
     (target: $target:expr, $lvl:expr, $($key:tt $(:$capture:tt)? $(= $value:expr)?),+; $($arg:tt)+) => {
-        Ok::<(),Box<dyn std::error::Error>>(())
+        Ok::<(), Box<dyn std::error::Error>>(())
     };
     (target: $target:expr, $lvl:expr, $($arg:tt)+) => {
-        Ok::<(),Box<dyn std::error::Error>>(())
+        Ok::<(), Box<dyn std::error::Error>>(())
     };
     ($lvl:expr,$($arg:tt)+) => {
-        Ok::<(),Box<dyn std::error::Error>>(())
+        Ok::<(), Box<dyn std::error::Error>>(())
     };
 }
-#[cfg(all(feature="log",not(feature="auto-config"),not(feature="internal-config")))]
+#[cfg(all(
+    feature = "log",
+    not(feature = "auto-config"),
+    not(feature = "internal-config")
+))]
 #[macro_export]
 macro_rules! log {
     (target: $target:expr, $lvl:expr, $($key:tt $(:$capture:tt)? $(= $value:expr)?),+; $($arg:tt)+) => {
@@ -40,7 +43,11 @@ macro_rules! log {
         Ok::<(),Box<dyn std::error::Error>>(())
     };
 }
-#[cfg(all(feature="log",feature="auto-config",not(feature="internal-config")))]
+#[cfg(all(
+    feature = "log",
+    feature = "auto-config",
+    not(feature = "internal-config")
+))]
 #[macro_export]
 macro_rules! log {
     (target: $target:expr, $lvl:expr, $($key:tt $(:$capture:tt)? $(= $value:expr)?),+; $($arg:tt)+) => {
@@ -59,7 +66,12 @@ macro_rules! log {
         result
     };
 }
-#[cfg(all(feature="log",not(feature="auto-config"),feature="internal-config",not(feature="trace-log")))]
+#[cfg(all(
+    feature = "log",
+    not(feature = "auto-config"),
+    feature = "internal-config",
+    not(feature = "trace-log")
+))]
 #[macro_export]
 macro_rules! log {
     (target: $target:expr, $lvl:expr, $($key:tt $(:$capture:tt)? $(= $value:expr)?),+; $($arg:tt)+) => {
@@ -76,7 +88,12 @@ macro_rules! log {
         Ok::<(),Box<dyn std::error::Error>>(())
     };
 }
-#[cfg(all(feature="log",feature="auto-config",feature="internal-config",not(feature="trace-log")))]
+#[cfg(all(
+    feature = "log",
+    feature = "auto-config",
+    feature = "internal-config",
+    not(feature = "trace-log")
+))]
 #[macro_export]
 macro_rules! log {
     (target: $target:expr, $lvl:expr, $($key:tt $(:$capture:tt)? $(= $value:expr)?),+; $($arg:tt)+) => {
@@ -96,7 +113,12 @@ macro_rules! log {
         result
     };
 }
-#[cfg(all(feature="log",not(feature="auto-config"),feature="internal-config",feature="trace-log"))]
+#[cfg(all(
+    feature = "log",
+    not(feature = "auto-config"),
+    feature = "internal-config",
+    feature = "trace-log"
+))]
 #[macro_export]
 macro_rules! log {
     (target: $target:expr, $lvl:expr, $($key:tt $(:$capture:tt)? $(= $value:expr)?),+; $($arg:tt)+) => {
@@ -114,7 +136,12 @@ macro_rules! log {
         Ok::<(),Box<dyn std::error::Error>>(())
     };
 }
-#[cfg(all(feature="log",feature="auto-config",feature="internal-config",feature="trace-log"))]
+#[cfg(all(
+    feature = "log",
+    feature = "auto-config",
+    feature = "internal-config",
+    feature = "trace-log"
+))]
 #[macro_export]
 macro_rules! log {
     (target: $target:expr, $lvl:expr, $($key:tt $(:$capture:tt)? $(= $value:expr)?),+; $($arg:tt)+) => {
@@ -162,7 +189,7 @@ macro_rules! info {
         $crate::log!(log::Level::Info,$($arg)+)
     };
 }
-#[cfg(feature="debug")]
+#[cfg(feature = "debug")]
 #[macro_export]
 macro_rules! debug {
     (target: $target:expr,$($arg:tt)+) => {
@@ -172,17 +199,17 @@ macro_rules! debug {
         $crate::log!(log::Level::Debug,$($arg)+)
     };
 }
-#[cfg(not(feature="debug"))]
+#[cfg(not(feature = "debug"))]
 #[macro_export]
 macro_rules! debug {
     (target: $target:expr,$($arg:tt)+) => {
-        Ok::<(),Box<dyn std::error::Error>>(())
+        Ok::<(), Box<dyn std::error::Error>>(())
     };
     ($($arg:tt)+) => {
-        Ok::<(),Box<dyn std::error::Error>>(())
+        Ok::<(), Box<dyn std::error::Error>>(())
     };
 }
-#[cfg(feature="debug")]
+#[cfg(feature = "debug")]
 #[macro_export]
 macro_rules! trace {
     (target: $target:expr,$($arg:tt)+) => {
@@ -192,13 +219,13 @@ macro_rules! trace {
         $crate::log!(log::Level::Debug,$($arg)+)
     };
 }
-#[cfg(not(feature="debug"))]
+#[cfg(not(feature = "debug"))]
 #[macro_export]
 macro_rules! trace {
     (target: $target:expr,$($arg:tt)+) => {
-        Ok::<(),Box<dyn std::error::Error>>(())
+        Ok::<(), Box<dyn std::error::Error>>(())
     };
     ($($arg:tt)+) => {
-        Ok::<(),Box<dyn std::error::Error>>(())
+        Ok::<(), Box<dyn std::error::Error>>(())
     };
 }

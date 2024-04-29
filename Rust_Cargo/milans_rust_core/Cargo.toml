@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+milans_rust_logging={path="../milans_rust_logging"}
 log = "0.4.21"
 num = "0.4.2"
 num-bigint = "0.4.4"
