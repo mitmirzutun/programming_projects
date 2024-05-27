@@ -729,8 +729,54 @@ impl MillerRabinTest for isize {
         true
     }
 }
+impl<T> MillerRabinTest for &T
+where
+    T: MillerRabinTest + Clone,
+{
+    fn miller_rabin_test(self) -> bool {
+        <T as MillerRabinTest>::miller_rabin_test(self.clone())
+    }
+    fn miller_rabin_test_iter(self, iterations: usize) -> bool {
+        <T as MillerRabinTest>::miller_rabin_test_iter(self.clone(), iterations)
+    }
+}
+impl<T> MillerRabinTest for std::rc::Rc<T>
+where
+    T: MillerRabinTest + Clone,
+{
+    fn miller_rabin_test(self) -> bool {
+        <T as MillerRabinTest>::miller_rabin_test((*self).clone())
+    }
+    fn miller_rabin_test_iter(self, iterations: usize) -> bool {
+        <T as MillerRabinTest>::miller_rabin_test_iter((*self).clone(), iterations)
+    }
+}
+impl<T> MillerRabinTest for std::sync::Arc<T>
+where
+    T: MillerRabinTest + Clone,
+{
+    fn miller_rabin_test(self) -> bool {
+        <T as MillerRabinTest>::miller_rabin_test((*self).clone())
+    }
+    fn miller_rabin_test_iter(self, iterations: usize) -> bool {
+        <T as MillerRabinTest>::miller_rabin_test_iter((*self).clone(), iterations)
+    }
+}
+impl<T> MillerRabinTest for std::sync::Arc<std::sync::Mutex<T>>
+where
+    T: MillerRabinTest + Clone,
+{
+    fn miller_rabin_test(self) -> bool {
+        let tmp = self.lock().unwrap();
+        <T as MillerRabinTest>::miller_rabin_test(tmp.clone())
+    }
+    fn miller_rabin_test_iter(self, iterations: usize) -> bool {
+        <T as MillerRabinTest>::miller_rabin_test_iter(self.lock().unwrap().clone(), iterations)
+    }
+}
 #[cfg(test)]
 mod test {
+
     macro_rules! pow_mod {
         ($type1:ty) => {
             assert_eq!(
@@ -787,5 +833,72 @@ mod test {
         pow_mod!(i128);
         pow_mod!(usize);
         pow_mod!(isize);
+    }
+    macro_rules! miller_rabin_test {
+        () => {};
+    }
+    #[test]
+    fn miller_rabin_test() {
+        use super::MillerRabinTest;
+        assert_eq!(
+            (-128..=127i8)
+                .filter(|x| MillerRabinTest::miller_rabin_test(x))
+                .collect::<Vec<_>>(),
+            vec![
+                2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79,
+                83, 89, 97, 101, 103, 107, 109, 113, 127
+            ]
+        );
+        assert_eq!(
+            (-128..=127i8)
+                .filter(|x| MillerRabinTest::miller_rabin_test_iter(x, 0))
+                .collect::<Vec<_>>(),
+            vec![
+                2, 3, 5, 7, 11, 13, 17, 19, 23, 25, 29, 31, 35, 37, 41, 43, 47, 49, 53, 55, 59, 61,
+                65, 67, 71, 73, 77, 79, 83, 85, 89, 91, 95, 97, 101, 103, 107, 109, 113, 115, 119,
+                121, 125, 127
+            ]
+        );
+        assert_eq!(
+            (-128..=127i8)
+                .filter(|x| MillerRabinTest::miller_rabin_test_iter(x, 1))
+                .collect::<Vec<_>>(),
+            vec![
+                2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79,
+                83, 89, 97, 101, 103, 107, 109, 113, 127
+            ]
+        );
+        assert_eq!(
+            (0..=255u8)
+                .filter(|x| MillerRabinTest::miller_rabin_test(x))
+                .collect::<Vec<_>>(),
+            vec![
+                2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79,
+                83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167,
+                173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251
+            ]
+        );
+        assert_eq!(
+            (0..=255u8)
+                .filter(|x| MillerRabinTest::miller_rabin_test_iter(x, 0))
+                .collect::<Vec<_>>(),
+            vec![
+                2, 3, 5, 7, 11, 13, 17, 19, 23, 25, 29, 31, 35, 37, 41, 43, 47, 49, 53, 55, 59, 61,
+                65, 67, 71, 73, 77, 79, 83, 85, 89, 91, 95, 97, 101, 103, 107, 109, 113, 115, 119,
+                121, 125, 127, 131, 133, 137, 139, 143, 145, 149, 151, 155, 157, 161, 163, 167,
+                169, 173, 175, 179, 181, 185, 187, 191, 193, 197, 199, 203, 205, 209, 211, 215,
+                217, 221, 223, 227, 229, 233, 235, 239, 241, 245, 247, 251, 253
+            ]
+        );
+        assert_eq!(
+            (0..=255u8)
+                .filter(|x| MillerRabinTest::miller_rabin_test_iter(x, 1))
+                .collect::<Vec<_>>(),
+            vec![
+                2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79,
+                83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167,
+                173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251
+            ]
+        );
     }
 }
