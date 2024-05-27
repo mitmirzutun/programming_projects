@@ -116,9 +116,618 @@ where
         <T as PowMod>::pow_mod(*self, exponent, modulus)
     }
 }
+macro_rules! miller_rabin_iter {
+    ($prime:expr,$base:expr) => {{
+        let prime = $prime;
+        let base = $base;
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        miller_rabin_iter!(prime, base, exponent, squares)
+    }};
+    ($prime:expr,$base:expr,$exponent:expr,$squares:expr) => {{
+        let prime = $prime;
+        let base = $base;
+        let exponent = $exponent;
+        let squares = $squares;
+        let mut result = base.pow_mod(exponent, prime);
+        if result == 0 {
+            true
+        } else if result == 1 || result == prime - 1 {
+            false
+        } else {
+            let mut is_witness = true;
+            for _ in 0..squares {
+                result = result.mul_mod(result, prime);
+                if result < 2 {
+                    break;
+                }
+                if result == prime - 1 {
+                    is_witness = false;
+                    break;
+                }
+            }
+            is_witness
+        }
+    }};
+}
 pub trait MillerRabinTest {
     fn miller_rabin_test(self) -> bool;
     fn miller_rabin_test_iter(self, iterations: usize) -> bool;
+}
+impl MillerRabinTest for u8 {
+    fn miller_rabin_test(self) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        if miller_rabin_iter!(prime, 2) {
+            return false;
+        }
+        true
+    }
+    fn miller_rabin_test_iter(self, iterations: usize) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        if iterations == 0 {
+            return true;
+        }
+        if miller_rabin_iter!(prime, 2) {
+            return false;
+        }
+        true
+    }
+}
+impl MillerRabinTest for i8 {
+    fn miller_rabin_test(self) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        if miller_rabin_iter!(prime, 2) {
+            return false;
+        }
+        true
+    }
+    fn miller_rabin_test_iter(self, iterations: usize) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        if iterations == 0 {
+            return true;
+        }
+        if miller_rabin_iter!(prime, 2) {
+            return false;
+        }
+        true
+    }
+}
+impl MillerRabinTest for u16 {
+    fn miller_rabin_test(self) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        if miller_rabin_iter!(prime, 2, exponent, squares) {
+            return false;
+        }
+        if prime < 2047 {
+            return true;
+        }
+        if miller_rabin_iter!(prime, 7, exponent, squares) {
+            return false;
+        }
+        true
+    }
+    fn miller_rabin_test_iter(self, iterations: usize) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        if iterations == 0 {
+            return true;
+        }
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        if miller_rabin_iter!(prime, 2, exponent, squares) {
+            return false;
+        }
+        if prime < 2047 || iterations == 1 {
+            return true;
+        }
+        if miller_rabin_iter!(prime, 7, exponent, squares) {
+            return false;
+        }
+        true
+    }
+}
+impl MillerRabinTest for i16 {
+    fn miller_rabin_test(self) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        if miller_rabin_iter!(prime, 2, exponent, squares) {
+            return false;
+        }
+        if prime < 2047 {
+            return true;
+        }
+        if miller_rabin_iter!(prime, 7, exponent, squares) {
+            return false;
+        }
+        true
+    }
+    fn miller_rabin_test_iter(self, iterations: usize) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        if iterations == 0 {
+            return true;
+        }
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        if miller_rabin_iter!(prime, 2, exponent, squares) {
+            return false;
+        }
+        if prime < 2047 || iterations == 1 {
+            return true;
+        }
+        if miller_rabin_iter!(prime, 7, exponent, squares) {
+            return false;
+        }
+        true
+    }
+}
+impl MillerRabinTest for u32 {
+    fn miller_rabin_test(self) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        if miller_rabin_iter!(prime, 2, exponent, squares) {
+            return false;
+        }
+        if prime < 2047 {
+            return true;
+        }
+        if miller_rabin_iter!(prime, 7, exponent, squares)
+            || miller_rabin_iter!(prime, 61, exponent, squares)
+        {
+            return false;
+        }
+        true
+    }
+    fn miller_rabin_test_iter(self, iterations: usize) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        if iterations == 0 {
+            return true;
+        }
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        if miller_rabin_iter!(prime, 2, exponent, squares) {
+            return false;
+        }
+        if prime < 2047 || iterations == 1 {
+            return true;
+        }
+        if miller_rabin_iter!(prime, 7, exponent, squares) {
+            return false;
+        }
+        if iterations == 2 {
+            return true;
+        }
+        if miller_rabin_iter!(prime, 61, exponent, squares) {
+            return false;
+        }
+        true
+    }
+}
+impl MillerRabinTest for i32 {
+    fn miller_rabin_test(self) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        if miller_rabin_iter!(prime, 2, exponent, squares) {
+            return false;
+        }
+        if prime < 2047 {
+            return true;
+        }
+        if miller_rabin_iter!(prime, 7, exponent, squares)
+            || miller_rabin_iter!(prime, 61, exponent, squares)
+        {
+            return false;
+        }
+        true
+    }
+    fn miller_rabin_test_iter(self, iterations: usize) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        if iterations == 0 {
+            return true;
+        }
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        if miller_rabin_iter!(prime, 2, exponent, squares) {
+            return false;
+        }
+        if prime < 2047 || iterations == 1 {
+            return true;
+        }
+        if miller_rabin_iter!(prime, 7, exponent, squares) {
+            return false;
+        }
+        if iterations == 2 {
+            return true;
+        }
+        if miller_rabin_iter!(prime, 61, exponent, squares) {
+            return false;
+        }
+        true
+    }
+}
+impl MillerRabinTest for u64 {
+    fn miller_rabin_test(self) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        if miller_rabin_iter!(prime, 2, exponent, squares) {
+            return false;
+        }
+        if prime < 2047 {
+            return true;
+        }
+        if prime <= u32::MAX as u64 {
+            let prime = prime as u32;
+            if miller_rabin_iter!(prime, 7, exponent, squares)
+                || miller_rabin_iter!(prime, 61, exponent, squares)
+            {
+                return false;
+            }
+            return true;
+        }
+        for base in 3..=43 {
+            if miller_rabin_iter!(prime, base, exponent, squares) {
+                return false;
+            }
+        }
+        true
+    }
+    fn miller_rabin_test_iter(self, iterations: usize) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        if iterations == 0 {
+            return true;
+        }
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        if miller_rabin_iter!(prime, 2, exponent, squares) {
+            return false;
+        }
+        if prime < 2047 || iterations == 1 {
+            return true;
+        }
+        if prime <= u32::MAX as u64 {
+            let prime = prime as u32;
+            if miller_rabin_iter!(prime, 7, exponent, squares) {
+                return false;
+            }
+            if iterations == 2 {
+                return true;
+            }
+            if miller_rabin_iter!(prime, 61, exponent, squares) {
+                return false;
+            }
+            return true;
+        }
+        for base in (3..=43).take(iterations - 1) {
+            if miller_rabin_iter!(prime, base, exponent, squares) {
+                return false;
+            }
+        }
+        true
+    }
+}
+impl MillerRabinTest for i64 {
+    fn miller_rabin_test(self) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        if miller_rabin_iter!(prime, 2, exponent, squares) {
+            return false;
+        }
+        if prime < 2047 {
+            return true;
+        }
+        if prime <= u32::MAX as i64 {
+            let prime = prime as u32;
+            if miller_rabin_iter!(prime, 7, exponent, squares)
+                || miller_rabin_iter!(prime, 61, exponent, squares)
+            {
+                return false;
+            }
+            return true;
+        }
+        for base in 3..=43 {
+            if miller_rabin_iter!(prime, base, exponent, squares) {
+                return false;
+            }
+        }
+        true
+    }
+    fn miller_rabin_test_iter(self, iterations: usize) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        if iterations == 0 {
+            return true;
+        }
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        if miller_rabin_iter!(prime, 2, exponent, squares) {
+            return false;
+        }
+        if prime < 2047 || iterations == 1 {
+            return true;
+        }
+        if prime <= u32::MAX as i64 {
+            let prime = prime as u32;
+            if miller_rabin_iter!(prime, 7, exponent, squares) {
+                return false;
+            }
+            if iterations == 2 {
+                return true;
+            }
+            if miller_rabin_iter!(prime, 61, exponent, squares) {
+                return false;
+            }
+            return true;
+        }
+        for base in (3..=43).take(iterations - 1) {
+            if miller_rabin_iter!(prime, base, exponent, squares) {
+                return false;
+            }
+        }
+        true
+    }
+}
+impl MillerRabinTest for usize {
+    fn miller_rabin_test(self) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        if miller_rabin_iter!(prime, 2, exponent, squares) {
+            return false;
+        }
+        if prime < 2047 {
+            return true;
+        }
+        if prime <= u32::MAX as usize {
+            let prime = prime as u32;
+            if miller_rabin_iter!(prime, 7, exponent, squares)
+                || miller_rabin_iter!(prime, 61, exponent, squares)
+            {
+                return false;
+            }
+            return true;
+        }
+        for base in 3..=43 {
+            if miller_rabin_iter!(prime, base, exponent, squares) {
+                return false;
+            }
+        }
+        true
+    }
+    fn miller_rabin_test_iter(self, iterations: usize) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        if iterations == 0 {
+            return true;
+        }
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        if miller_rabin_iter!(prime, 2, exponent, squares) {
+            return false;
+        }
+        if prime < 2047 || iterations == 1 {
+            return true;
+        }
+        if prime <= u32::MAX as usize {
+            let prime = prime as u32;
+            if miller_rabin_iter!(prime, 7, exponent, squares) {
+                return false;
+            }
+            if iterations == 2 {
+                return true;
+            }
+            if miller_rabin_iter!(prime, 61, exponent, squares) {
+                return false;
+            }
+            return true;
+        }
+        for base in (3..=43).take(iterations - 1) {
+            if miller_rabin_iter!(prime, base, exponent, squares) {
+                return false;
+            }
+        }
+        true
+    }
+}
+impl MillerRabinTest for isize {
+    fn miller_rabin_test(self) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        if miller_rabin_iter!(prime, 2, exponent, squares) {
+            return false;
+        }
+        if prime < 2047 {
+            return true;
+        }
+        if prime <= u32::MAX as isize {
+            let prime = prime as u32;
+            if miller_rabin_iter!(prime, 7, exponent, squares)
+                || miller_rabin_iter!(prime, 61, exponent, squares)
+            {
+                return false;
+            }
+            return true;
+        }
+        for base in 3..=43 {
+            if miller_rabin_iter!(prime, base, exponent, squares) {
+                return false;
+            }
+        }
+        true
+    }
+    fn miller_rabin_test_iter(self, iterations: usize) -> bool {
+        let prime = self;
+        if prime < 2 {
+            return false;
+        }
+        if prime % 6 != 1 && prime % 6 != 5 {
+            return prime < 4;
+        }
+        if iterations == 0 {
+            return true;
+        }
+        let exponent = prime >> 1;
+        let squares = exponent.trailing_zeros();
+        let exponent = (exponent >> squares) as u128;
+        if miller_rabin_iter!(prime, 2, exponent, squares) {
+            return false;
+        }
+        if prime < 2047 || iterations == 1 {
+            return true;
+        }
+        if prime <= u32::MAX as isize {
+            let prime = prime as u32;
+            if miller_rabin_iter!(prime, 7, exponent, squares) {
+                return false;
+            }
+            if iterations == 2 {
+                return true;
+            }
+            if miller_rabin_iter!(prime, 61, exponent, squares) {
+                return false;
+            }
+            return true;
+        }
+        for base in (3..=43).take(iterations - 1) {
+            if miller_rabin_iter!(prime, base, exponent, squares) {
+                return false;
+            }
+        }
+        true
+    }
 }
 #[cfg(test)]
 mod test {
