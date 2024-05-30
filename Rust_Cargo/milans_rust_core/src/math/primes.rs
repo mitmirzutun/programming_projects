@@ -776,7 +776,6 @@ where
 }
 #[cfg(test)]
 mod test {
-
     macro_rules! pow_mod {
         ($type1:ty) => {
             assert_eq!(
@@ -833,9 +832,6 @@ mod test {
         pow_mod!(i128);
         pow_mod!(usize);
         pow_mod!(isize);
-    }
-    macro_rules! miller_rabin_test {
-        () => {};
     }
     #[test]
     fn miller_rabin_test() {
@@ -899,6 +895,54 @@ mod test {
                 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167,
                 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251
             ]
+        );
+        assert_eq!(
+            (i16::MIN..=i16::MAX)
+                .filter(|x| MillerRabinTest::miller_rabin_test(x))
+                .count(),
+            3512
+        );
+        assert_eq!(
+            (i16::MIN..=i16::MAX)
+                .filter(|x| MillerRabinTest::miller_rabin_test_iter(x, 0))
+                .count(),
+            10924
+        );
+        assert_eq!(
+            (i16::MIN..=i16::MAX)
+                .filter(|x| MillerRabinTest::miller_rabin_test_iter(x, 1))
+                .count(),
+            3519
+        );
+        assert_eq!(
+            (i16::MIN..=i16::MAX)
+                .filter(|x| MillerRabinTest::miller_rabin_test_iter(x, 2))
+                .count(),
+            3512
+        );
+        assert_eq!(
+            (0..=u16::MAX)
+                .filter(|x| MillerRabinTest::miller_rabin_test(x))
+                .count(),
+            6542
+        );
+        assert_eq!(
+            (0..=u16::MAX)
+                .filter(|x| MillerRabinTest::miller_rabin_test_iter(x, 0))
+                .count(),
+            21846
+        );
+        assert_eq!(
+            (0..=u16::MAX)
+                .filter(|x| MillerRabinTest::miller_rabin_test_iter(x, 1))
+                .count(),
+            6553
+        );
+        assert_eq!(
+            (0..=u16::MAX)
+                .filter(|x| MillerRabinTest::miller_rabin_test_iter(x, 2))
+                .count(),
+            6542
         );
     }
 }
