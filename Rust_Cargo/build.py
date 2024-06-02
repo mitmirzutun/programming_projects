@@ -19,7 +19,7 @@ def main():
         return
     subprocess.run(["cargo", "build"], cwd=os.path.join(__path__,"milans_pyo3_library"))
     subprocess.run(["cp","target/debug/libmilans_pyo3_library.so","../Python/.venv/lib/python3.11/site-packages/milans_pyo3_library.so"],cwd=__path__)
-    subprocess.run(["cp","target/debug/libmilans_pyo3_library.so","../Python/milans_pyo3_library.so"],cwd=__path__)
+    #subprocess.run(["cp","target/debug/libmilans_pyo3_library.so","../Python/milans_pyo3_library.so"],cwd=__path__)
     result=subprocess.run(["cargo","expand"], cwd=os.path.join(__path__,"milans_rust_core"), capture_output=True)
     with open(os.path.join(__path__,"milans_rust_core","expanded.rs"),"wb") as expanded:
         expanded.write(result.stdout)
