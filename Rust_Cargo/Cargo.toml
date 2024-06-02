@@ -18,3 +18,4 @@ path = "src/main.rs"
 
 [dependencies]
 milans_rust_core = { version = "0.1.0", path = "milans_rust_core" }
+milans_rust_proc_macros = { version = "0.1.0", path = "milans_rust_proc_macros" }
