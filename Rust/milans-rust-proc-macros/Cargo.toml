@@ -1,0 +1,12 @@
+cargo-features=["edition2024"]
+
+[package]
+name = "milans-rust-proc-macros"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "milans_rust_proc_macros"
+proc-macro = true
+
+[dependencies]

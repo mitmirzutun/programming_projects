@@ -1,0 +1,12 @@
+cargo-features=["edition2024"]
+
+[package]
+name = "milans-pyo3-library"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "milans_pyo3_library"
+crate-type = ["rlib","cdylib"]
+
+[dependencies]

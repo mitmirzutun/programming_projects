@@ -1,0 +1,11 @@
+cargo-features=["edition2024"]
+
+[package]
+name = "milans-rust-library"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "milans_rust_library"
+
+[dependencies]

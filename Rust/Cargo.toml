@@ -1,0 +1,6 @@
+[workspace]
+members = [ "milans-pyo3-library", "milans-rust-core", "milans-rust-library", "milans-rust-proc-macros"]
+resolver = "2"
+[profile.dev]
+opt-level=2
+lto="thin"
