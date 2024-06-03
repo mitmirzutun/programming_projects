@@ -32,15 +32,12 @@ def main():
                 result=subprocess.run(["cargo","expand"], cwd=workspace, capture_output=True)
                 with open(os.path.join(__path__,"expanded",f"{basedir}.rs"),"wb") as expanded:
                     expanded.write(result.stdout)
+                subprocess.run(["cargo","test"],cwd=workspace,check=True)
             subprocess.run(["cargo", "fmt"], cwd=__path__)
-            subprocess.run(["cargo", "test"], check=True, cwd=__path__)
-            subprocess.run(["cargo", "test"], check=True, cwd=os.path.join(__path__,"milans_rust_core"))
-            subprocess.run(["cargo", "test"], check=True, cwd=os.path.join(__path__,"milans_rust_proc_macros"))
-            subprocess.run(["cargo", "test"], check=True, cwd=os.path.join(__path__,"milans_pyo3_library"))
         except Exception as e:
             print(e)
         c=input("continue?")
-        subprocess.run(["cargo", "build"], cwd=os.path.join(__path__,"milans_pyo3_library"))
+    subprocess.run(["cargo", "build"], cwd=os.path.join(__path__,"milans-pyo3-library"))
     subprocess.run(["cp","target/debug/libmilans_pyo3_library.so","../Python/.venv/lib/python3.11/site-packages/milans_pyo3_library.so"],cwd=__path__)
     subprocess.run(["cargo", "run"], cwd=__path__)
 if __name__=="__main__":

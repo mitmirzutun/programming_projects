@@ -3,8 +3,8 @@
 **/cmake-build-debug
 **/.venv
 **/Cargo.lock
-Rust_Cargo/expanded/*
-!Rust_Cargo/expanded/.gitkeep
+Rust/expanded/*
+!Rust/expanded/.gitkeep
 **/__pycache__
 latex/*
 !latex/*.tex
