@@ -10,3 +10,11 @@ name = "milans_pyo3_library"
 crate-type = ["rlib","cdylib"]
 
 [dependencies]
+milans-rust-core = { version = "0.1.0", path = "../milans-rust-core" }
+milans-rust-library = { version = "0.1.0", path = "../milans-rust-library" }
+milans-rust-proc-macros = { version = "0.1.0", path = "../milans-rust-proc-macros" }
+num = "0.4.3"
+num-bigint = "0.4.5"
+num-complex = "0.4.6"
+pyo3 = "0.21.2"
+rust_decimal = "1.35.0"

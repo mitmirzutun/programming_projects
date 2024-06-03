@@ -9,3 +9,9 @@ edition = "2024"
 name = "milans_rust_library"
 
 [dependencies]
+milans-rust-core = { version = "0.1.0", path = "../milans-rust-core" }
+milans-rust-proc-macros = { version = "0.1.0", path = "../milans-rust-proc-macros" }
+num = "0.4.3"
+num-bigint = "0.4.5"
+num-complex = "0.4.6"
+rust_decimal = "1.35.0"

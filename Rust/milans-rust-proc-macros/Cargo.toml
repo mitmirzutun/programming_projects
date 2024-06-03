@@ -10,3 +10,4 @@ name = "milans_rust_proc_macros"
 proc-macro = true
 
 [dependencies]
+milans-rust-core = { version = "0.1.0", path = "../milans-rust-core" }
